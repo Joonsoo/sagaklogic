@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Nemonemo',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Solver'),
     );
   }
 }
@@ -47,7 +47,7 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _SolvingState createState() {
-    return _SolvingState.fromQuiz(quiz: Samples.kakaodog);
+    return _SolvingState.fromQuiz(quiz: Samples.octopus.createQuiz());
   }
 }
 
@@ -63,16 +63,17 @@ class _SolvingState extends State<MyHomePage> {
   }
 
   _SolvingState.fromQuiz({this.quiz}) {
+    setQuiz(quiz);
+  }
+
+  void setQuiz(Quiz newQuiz) {
+    quiz = newQuiz;
     solution = new Board(rows: quiz.rows.length, cols: quiz.cols.length);
     current = new Board(rows: quiz.rows.length, cols: quiz.cols.length);
     quiz.prettyPrint();
   }
 
   void _showSolution() {
-    SolveHelper helper = SolveHelper(
-        line: ConcreteLine.fromString("     O X O     "),
-        chunks: Chunks(counts: [3, 1, 5]));
-
     setState(() {
       //solution.initRandom(Random.secure());
       // print(solution.configurationPrettyString());
@@ -122,10 +123,8 @@ class _SolvingState extends State<MyHomePage> {
               hintOnVertical(i);
             });
           },
-          child: Text(
-            quiz.cols[i].counts.join("\n"),
-            textAlign: TextAlign.center,
-          ));
+          child: Text(quiz.cols[i].counts.join("\n"),
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 8)));
     }
 
     var autoButton = FlatButton(
@@ -176,7 +175,9 @@ class _SolvingState extends State<MyHomePage> {
                         hintOnHorizontal(i);
                       });
                     },
-                    child: Text(hint, textAlign: TextAlign.right))
+                    child: Text(hint,
+                        style: TextStyle(fontSize: 8),
+                        textAlign: TextAlign.right))
               ] +
               cells);
     }
@@ -186,6 +187,29 @@ class _SolvingState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.clear),
+            onPressed: () {
+              setState(() {
+                current.clearBoard();
+              });
+            },
+          ),
+          PopupMenuButton<Quiz>(
+            onSelected: (Quiz newQuiz) {
+              setState(() {
+                setQuiz(newQuiz);
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              return Samples.allQuizzes.entries
+                  .map((p) =>
+                      PopupMenuItem<Quiz>(value: p.value, child: Text(p.key)))
+                  .toList();
+            },
+          )
+        ],
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it

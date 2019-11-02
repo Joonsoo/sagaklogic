@@ -1,48 +1,6 @@
+import 'dart:ui';
+
 import 'package:sagaklogic/Board.dart';
-
-abstract class Line {
-  int length();
-
-  CellState operator [](int index);
-
-  String toString() {
-    String s = "";
-    for (int i = 0; i < length(); i++) {
-      var c = this[i];
-      s += (c == CellState.Filled) ? "O" : ((c == CellState.Never) ? "X" : ".");
-    }
-    return s;
-  }
-}
-
-class ConcreteLine extends Line {
-  ConcreteLine({this.line});
-
-  ConcreteLine.fromString(String s) {
-    line = s
-        .split('')
-        .map((e) => (e == "O")
-            ? CellState.Filled
-            : ((e == "X") ? CellState.Never : CellState.Empty))
-        .toList(growable: false);
-  }
-
-  ConcreteLine.fromLine(Line other) {
-    line = List(other.length());
-
-    for (int i = 0; i < other.length(); i++) {
-      line[i] = other[i];
-    }
-  }
-
-  List<CellState> line;
-
-  @override
-  int length() => line.length;
-
-  @override
-  CellState operator [](int index) => line[index];
-}
 
 class MutableLine extends ConcreteLine {
   MutableLine(List<CellState> line) : super(line: line);
@@ -64,7 +22,7 @@ List<int> range(int start, int end) =>
 
 class SolveHelper {
   SolveHelper({this.line, this.chunks}) {
-    print("SolveHelper $chunks ${line.toString()}");
+    log("SolveHelper $chunks ${line.toString()}");
 
     // init possiblePositions
     possiblePositions = List();
@@ -74,12 +32,12 @@ class SolveHelper {
     for (int chunk in chunks.counts) {
       rr -= chunk + 1;
       int right = length - rr - chunk;
-      print("$chunk $left $right");
+      log("$chunk $left $right");
       possiblePositions.add(range(left, right));
       left += chunk + 1;
     }
     assert(chunks.counts.length == possiblePositions.length);
-    print(possiblePositions);
+    log(possiblePositions);
 
     solvedLine = MutableLine.fromLine(line);
 
@@ -89,8 +47,12 @@ class SolveHelper {
       iteration();
     }
     if (lastVersion != solvedLine.version) {
-      print("Updated!");
+      log("Updated!");
     }
+  }
+
+  void log(Object s) {
+    // print(s);
   }
 
   final Line line;
@@ -98,27 +60,33 @@ class SolveHelper {
   final Chunks chunks;
   List<List<int>> possiblePositions;
 
+  // 각 블럭별로, 해당 블럭을 가질 수 있는 청크의 id -> 겹치는 포지션들의 리스트
+  List<Map<int, List<int>>> possibleOwners;
+
   void iteration() {
     removeNeverCells();
-    print("removeNeverCells $possiblePositions");
+    log("removeNeverCells $possiblePositions");
 
     removeAdjacentFilledCells();
-    print("removeAdjacentFilledCells $possiblePositions");
+    log("removeAdjacentFilledCells $possiblePositions");
 
     removeNotInOrderPositions();
-    print("removeNotInOrderPositions $possiblePositions");
+    log("removeNotInOrderPositions $possiblePositions");
 
     removeExclusives();
-    print("removeExclusives $possiblePositions");
+    log("removeExclusives $possiblePositions");
 
-    fillCertain();
-    print("fillCertain $solvedLine");
+    markNondeterminedBlocks();
+    log("markNondeterminedBlocks $solvedLine");
 
-    fillAlways();
-    print("fillAlways $solvedLine");
+    markCertain();
+    log("markCertain $solvedLine");
 
-    fillNevers();
-    print("fillNevers $solvedLine");
+    markAlways();
+    log("markAlways $solvedLine");
+
+    markNevers();
+    log("markNevers $solvedLine");
   }
 
   bool hasNeverIn(int start, int end) {
@@ -184,7 +152,7 @@ class SolveHelper {
   }
 
   // possiblePositions가 딱 하나만 남은 블럭 표시
-  void fillCertain() {
+  void markCertain() {
     for (int i = 0; i < chunks.counts.length; i++) {
       if (possiblePositions[i].length == 1) {
         int position = possiblePositions[i][0];
@@ -201,11 +169,8 @@ class SolveHelper {
     }
   }
 
-  // TODO 어떤 청크가 가져갈지는 모르지만 사이즈는 확정되었거나 사이즈의 lower bound는 알려진 경우 채워넣기
-  void fillCertainSize() {}
-
   // 어떤 possiblePositions에 의해서든 점유될 가능성이 있는 cell에 O 표시
-  void fillAlways() {
+  void markAlways() {
     for (int i = 0; i < chunks.counts.length; i++) {
       int left = max(possiblePositions[i]);
       int right = min(possiblePositions[i]) + chunks.counts[i] - 1;
@@ -218,7 +183,7 @@ class SolveHelper {
   }
 
   // 어떤 possiblePositions에 의해서도 점유될 가능성이 없는 cell에 X 표시
-  void fillNevers() {
+  void markNevers() {
     if (chunks.counts.length == 0) return;
 
     int nonemptyLeftmost = min(possiblePositions[0]);
@@ -242,32 +207,87 @@ class SolveHelper {
 
   bool inRange(int i, int min, int max) => min <= i && i <= max;
 
-  // 각 블럭을 "반드시" 포함해야하는 청크가 그 블럭을 포함하지 않은 possiblePositions 제거
-  void removeExclusives() {
-    // 각 블럭별로, 해당 블럭을 가질 수 있는 청크의 id들의 리스트
-    List<List<int>> possibleOwners =
-        List.generate(line.length(), (i) => List());
+  void updatePossibleOwners() {
+    // TODO 필요 없을때 안하기
+    possibleOwners = List.generate(line.length(), (i) => Map());
 
     for (int i = 0; i < chunks.counts.length; i++) {
-      int left = min(possiblePositions[i]);
-      int right = max(possiblePositions[i]) + chunks.counts[i];
-      for (int j = left; j < right; j++) {
-        possibleOwners[j].add(i);
+      for (int possiblePosition in possiblePositions[i]) {
+        int right = possiblePosition + chunks.counts[i];
+        for (int j = possiblePosition; j < right; j++) {
+          if (!possibleOwners[j].containsKey(i)) {
+            possibleOwners[j][i] = List();
+          }
+          possibleOwners[j][i].add(possiblePosition);
+        }
       }
     }
 
-    print(possibleOwners);
+    log(possibleOwners);
+  }
+
+  // 각 블럭을 "반드시" 포함해야하는 청크가 그 블럭을 포함하지 않은 possiblePositions 제거
+  void removeExclusives() {
+    updatePossibleOwners();
 
     for (int i = 0; i < line.length(); i++) {
       if (possibleOwners[i].isEmpty) {
         solvedLine[i] = CellState.Never;
       } else if (solvedLine[i] == CellState.Filled &&
-          possibleOwners[i].length == 1) {
-        int owningChunk = possibleOwners[i][0];
+          possibleOwners[i].keys.length == 1) {
+        int owningChunk = possibleOwners[i].keys.last;
         possiblePositions[owningChunk] = possiblePositions[owningChunk]
             .where(
                 (pos) => inRange(i, pos, pos + chunks.counts[owningChunk] - 1))
             .toList(growable: false);
+      }
+    }
+  }
+
+  void markNondeterminedBlocks() {
+    updatePossibleOwners();
+    PositionedChunks existingChunks = line.countPositionedChunks();
+    log("existingChunks: $existingChunks");
+
+    log("possiblePositions: $possiblePositions");
+    for (int i = 0; i < possibleOwners.length; i++) {
+      log("possibleOwners $i: ${possibleOwners[i]}");
+    }
+
+    for (int i = 0; i < existingChunks.chunks.length; i++) {
+      ChunkPosition existing = existingChunks.chunks[i];
+      Map<int, List<int>> possibleOwnersOfChunk = Map();
+
+      for (int j = existing.start; j <= existing.end; j++) {
+        for (var x in possibleOwners[j].entries) {
+          if (!possibleOwnersOfChunk.containsKey(x.key)) {
+            possibleOwnersOfChunk[x.key] = List();
+          }
+          possibleOwnersOfChunk[x.key] = possibleOwnersOfChunk[x.key] + x.value;
+          possibleOwnersOfChunk[x.key] =
+              possibleOwnersOfChunk[x.key].toSet().toList(growable: false);
+        }
+      }
+      log("$existing -> $possibleOwnersOfChunk");
+
+      Set<int> additionalCells = null;
+      for (var pair in possibleOwnersOfChunk.entries) {
+        var quizChunk = pair.key;
+        var positions = pair.value;
+        for (int position in positions) {
+          var thisPosition =
+              range(position, position + chunks.counts[quizChunk] - 1).toSet();
+          if (additionalCells == null) {
+            additionalCells = Set();
+            additionalCells.addAll(thisPosition);
+          } else {
+            additionalCells = additionalCells.intersection(thisPosition);
+          }
+        }
+      }
+      log("additionalCells: $additionalCells");
+      for (var additionalCell in additionalCells) {
+        solvedLine[additionalCell] = CellState.Filled;
       }
     }
   }

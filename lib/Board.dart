@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:sagaklogic/SolveHelper.dart';
-
 enum CellState { Empty, Filled, Never }
 
 class Board {
@@ -70,41 +68,11 @@ class Board {
   }
 
   Chunks countChunksInRow(int row) {
-    List<int> counts = [];
-    int countSoFar = 0;
-    for (int i = 0; i < cols; i++) {
-      if (configuration[row][i] == CellState.Filled) {
-        countSoFar += 1;
-      } else {
-        if (countSoFar > 0) {
-          counts.add(countSoFar);
-        }
-        countSoFar = 0;
-      }
-    }
-    if (countSoFar > 0) {
-      counts.add(countSoFar);
-    }
-    return new Chunks(counts: counts);
+    return horizontalView(row).countChunks();
   }
 
   Chunks countChunksInCol(int col) {
-    List<int> counts = [];
-    int countSoFar = 0;
-    for (int i = 0; i < rows; i++) {
-      if (configuration[i][col] == CellState.Filled) {
-        countSoFar += 1;
-      } else {
-        if (countSoFar > 0) {
-          counts.add(countSoFar);
-        }
-        countSoFar = 0;
-      }
-    }
-    if (countSoFar > 0) {
-      counts.add(countSoFar);
-    }
-    return new Chunks(counts: counts);
+    return verticalView(col).countChunks();
   }
 
   static String cellStateString(CellState state) {
@@ -154,6 +122,90 @@ class Board {
       configuration[row][i] = line[i];
     }
   }
+}
+
+abstract class Line {
+  int length();
+
+  CellState operator [](int index);
+
+  Chunks countChunks() {
+    List<int> counts = [];
+    int countSoFar = 0;
+    for (int i = 0; i < length(); i++) {
+      if (this[i] == CellState.Filled) {
+        countSoFar += 1;
+      } else {
+        if (countSoFar > 0) {
+          counts.add(countSoFar);
+        }
+        countSoFar = 0;
+      }
+    }
+    if (countSoFar > 0) {
+      counts.add(countSoFar);
+    }
+    return new Chunks(counts: counts);
+  }
+
+  PositionedChunks countPositionedChunks() {
+    List<ChunkPosition> chunks = [];
+    int countStart = -1;
+    int countSoFar = 0;
+    for (int i = 0; i < length(); i++) {
+      if (this[i] == CellState.Filled) {
+        if (countSoFar == 0) countStart = i;
+        countSoFar += 1;
+      } else {
+        if (countSoFar > 0) {
+          chunks.add(ChunkPosition(start: countStart, size: countSoFar));
+        }
+        countSoFar = 0;
+      }
+    }
+    if (countSoFar > 0) {
+      chunks.add(ChunkPosition(start: countStart, size: countSoFar));
+    }
+    return new PositionedChunks(chunks: chunks);
+  }
+
+  String toString() {
+    String s = "";
+    for (int i = 0; i < length(); i++) {
+      var c = this[i];
+      s += (c == CellState.Filled) ? "O" : ((c == CellState.Never) ? "X" : ".");
+    }
+    return s;
+  }
+}
+
+class ConcreteLine extends Line {
+  ConcreteLine({this.line});
+
+  ConcreteLine.fromString(String s) {
+    line = s
+        .split('')
+        .map((e) => (e == "O")
+            ? CellState.Filled
+            : ((e == "X") ? CellState.Never : CellState.Empty))
+        .toList(growable: false);
+  }
+
+  ConcreteLine.fromLine(Line other) {
+    line = List(other.length());
+
+    for (int i = 0; i < other.length(); i++) {
+      line[i] = other[i];
+    }
+  }
+
+  List<CellState> line;
+
+  @override
+  int length() => line.length;
+
+  @override
+  CellState operator [](int index) => line[index];
 }
 
 class VerticalView extends Line {
@@ -212,4 +264,23 @@ class Chunks {
   String toString() {
     return counts.join(" ");
   }
+}
+
+class ChunkPosition {
+  ChunkPosition({this.start, this.size});
+
+  final int start;
+  final int size;
+
+  int get end => start + size - 1;
+
+  String toString() => "($start+$size,$start~$end)";
+}
+
+class PositionedChunks {
+  PositionedChunks({this.chunks});
+
+  List<ChunkPosition> chunks;
+
+  String toString() => chunks.toString();
 }

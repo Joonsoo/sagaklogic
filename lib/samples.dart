@@ -1,6 +1,15 @@
 import 'package:sagaklogic/Board.dart';
 
 class Samples {
+  static Map<String, Quiz> allQuizzes = {
+    "metamong": metamong.createQuiz(),
+    "octopus": octopus.createQuiz(),
+    "deer": deer,
+    "kakaodog": kakaodog,
+    "moyashimon": moyashimon,
+    "gagamel": gagamel
+  };
+
   static Board metamong = Board.fromStrings([
     "...OOO....",
     "..OO..O.OO",
@@ -182,6 +191,158 @@ class Samples {
     Chunks(counts: [4, 7, 5]),
     Chunks(counts: [4, 7, 5]),
     Chunks(counts: [4, 7, 5]),
+    //
+  ]);
+
+  static Quiz moyashimon = new Quiz(rows: [
+    Chunks(counts: [30]),
+    Chunks(counts: [1, 2, 2, 1]),
+    Chunks(counts: [3, 4, 1, 1, 1]),
+    Chunks(counts: [1, 2, 4, 1, 1]),
+    Chunks(counts: [2, 3, 1, 2, 3, 3]),
+    //
+    Chunks(counts: [2, 3, 4, 1, 1, 1, 1]),
+    Chunks(counts: [1, 1, 1, 4, 1, 3, 1]),
+    Chunks(counts: [8, 3, 2, 2, 1, 3]),
+    Chunks(counts: [1, 2, 2, 2, 1, 1, 1, 3, 1]),
+    Chunks(counts: [1, 1, 3, 10, 1, 4]),
+    //
+    Chunks(counts: [1, 1, 2, 2, 4, 1, 1]),
+    Chunks(counts: [1, 1, 2, 2, 2, 2, 1]),
+    Chunks(counts: [1, 1, 1, 3, 3, 1]),
+    Chunks(counts: [1, 2, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [6, 1, 1, 1]),
+    //
+    Chunks(counts: [1, 2, 1, 1, 1, 1]),
+    Chunks(counts: [1, 2, 1, 1, 1, 1]),
+    Chunks(counts: [1, 2, 1, 1, 11, 1, 1]),
+    Chunks(counts: [1, 1, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [1, 1, 1, 1, 1, 2, 4, 1]),
+    //
+    Chunks(counts: [1, 1, 1, 3, 9, 1, 3]),
+    Chunks(counts: [8, 2, 2, 1, 1]),
+    Chunks(counts: [1, 1, 17, 1]),
+    Chunks(counts: [3, 1, 3, 1, 1, 4]),
+    Chunks(counts: [1, 2, 1, 1, 1, 1, 1]),
+    //
+    Chunks(counts: [2, 5, 4, 1, 1, 3]),
+    Chunks(counts: [1, 1, 3, 1, 1, 1, 1]),
+    Chunks(counts: [5, 3, 1, 1, 1, 1]),
+    Chunks(counts: [1, 1, 1, 1, 1]),
+    Chunks(counts: [30]),
+    //
+  ], cols: [
+    Chunks(counts: [1, 2, 2, 5, 1, 2, 1]),
+    Chunks(counts: [1, 1, 2, 1, 4, 1, 4, 1, 1, 1, 1]),
+    Chunks(counts: [1, 1, 2, 5, 1, 1, 1, 1]),
+    Chunks(counts: [1, 1, 2, 15, 1, 1, 1, 1]),
+    Chunks(counts: [1, 2, 1, 1, 1, 1, 1, 1]),
+    //
+    Chunks(counts: [9, 1, 18]),
+    Chunks(counts: [1, 1, 5, 1, 1, 1]),
+    Chunks(counts: [1, 1, 3, 1, 2, 3, 2, 1, 1]),
+    Chunks(counts: [1, 2, 1, 2, 9, 2, 1, 1]),
+    Chunks(counts: [1, 3, 2, 2, 2, 1, 2, 1]),
+    //
+    Chunks(counts: [1, 3, 2, 3, 1, 1]),
+    Chunks(counts: [1, 4, 1, 3, 1, 2, 1]),
+    Chunks(counts: [1, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [1, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [1, 3, 1, 1, 8]),
+    //
+    Chunks(counts: [1, 4, 1, 1, 1, 1, 1]),
+    Chunks(counts: [1, 2, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [4, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [2, 1, 2, 1, 1, 1, 1, 1]),
+    Chunks(counts: [1, 2, 3, 1, 1, 1, 6]),
+    //
+    Chunks(counts: [2, 3, 2, 1, 2, 1, 1]),
+    Chunks(counts: [5, 1, 1, 3, 8]),
+    Chunks(counts: [1, 1, 1, 1]),
+    Chunks(counts: [1, 4, 2, 1]),
+    Chunks(counts: [1, 1, 2, 4, 1]),
+    //
+    Chunks(counts: [1, 3, 8, 1, 1]),
+    Chunks(counts: [1, 1, 1, 2, 1, 2, 1]),
+    Chunks(counts: [1, 4, 3, 3, 3, 1]),
+    Chunks(counts: [1, 1, 1, 1, 1, 1, 1, 1]),
+    Chunks(counts: [30]),
+    //
+  ]);
+
+  static Quiz gagamel = new Quiz(rows: [
+    Chunks(counts: [10]),
+    Chunks(counts: [3, 7, 2]),
+    Chunks(counts: [4, 2, 3, 3, 4]),
+    Chunks(counts: [5, 1, 3, 3]),
+    Chunks(counts: [7, 5, 3]),
+    //
+    Chunks(counts: [7, 1, 2, 3, 4]),
+    Chunks(counts: [9, 1, 1, 1, 1]),
+    Chunks(counts: [9, 1, 1, 1]),
+    Chunks(counts: [11, 1, 2, 2, 1]),
+    Chunks(counts: [3, 5, 2, 2, 2, 1]),
+    //
+    Chunks(counts: [2, 3, 5, 7]),
+    Chunks(counts: [1, 2, 2, 1, 1, 3]),
+    Chunks(counts: [1, 2, 1, 4, 4, 1]),
+    Chunks(counts: [1, 2, 1, 1]),
+    Chunks(counts: [1, 5, 3, 4, 3]),
+    //
+    Chunks(counts: [2, 2, 3, 5]),
+    Chunks(counts: [4, 1, 2, 2, 1]),
+    Chunks(counts: [6, 1, 2, 2, 1]),
+    Chunks(counts: [3, 2, 3, 1]),
+    Chunks(counts: [3, 3, 1, 1]),
+    //
+    Chunks(counts: [3, 1, 5, 1]),
+    Chunks(counts: [4, 1, 5, 1]),
+    Chunks(counts: [4, 2, 4, 1, 1]),
+    Chunks(counts: [2, 2, 2, 2, 2]),
+    Chunks(counts: [2, 3, 2, 4, 2]),
+    //
+    Chunks(counts: [3, 7, 2]),
+    Chunks(counts: [3, 5, 2, 3]),
+    Chunks(counts: [4, 3, 9]),
+    Chunks(counts: [4, 4]),
+    Chunks(counts: [4, 5]),
+    //
+  ], cols: [
+    Chunks(counts: [20, 6]),
+    Chunks(counts: [9, 8, 6]),
+    Chunks(counts: [8, 8, 5]),
+    Chunks(counts: [7, 1, 1, 2, 4, 3]),
+    Chunks(counts: [8, 2, 1, 1, 3]),
+    //
+    Chunks(counts: [1, 5, 4, 1, 3, 6]),
+    Chunks(counts: [2, 7, 3, 2, 5]),
+    Chunks(counts: [1, 5, 1, 7]),
+    Chunks(counts: [1, 7, 3, 2]),
+    Chunks(counts: [1, 5, 1, 1]),
+    //
+    Chunks(counts: [1, 3, 2]),
+    Chunks(counts: [1, 2]),
+    Chunks(counts: [1, 1, 1, 1]),
+    Chunks(counts: [3, 1, 1]),
+    Chunks(counts: [2, 5, 1, 8, 1]),
+    //
+    Chunks(counts: [3, 2, 2, 1, 2, 6, 1]),
+    Chunks(counts: [4, 1, 1, 3, 6, 1]),
+    Chunks(counts: [5, 2, 1, 2, 3, 1, 1]),
+    Chunks(counts: [1, 3, 3, 5, 1, 1]),
+    Chunks(counts: [2, 3, 3, 3, 1, 2, 2]),
+    //
+    Chunks(counts: [1, 1, 1, 2, 2, 1]),
+    Chunks(counts: [1, 3, 3, 1, 1, 2, 2]),
+    Chunks(counts: [3, 3, 1, 3, 2]),
+    Chunks(counts: [4, 1, 1, 2]),
+    Chunks(counts: [3, 6, 9]),
+    //
+    Chunks(counts: [2, 1, 1]),
+    Chunks(counts: [1, 2, 2]),
+    Chunks(counts: [2, 1]),
+    Chunks(counts: [4]),
+    Chunks(counts: []),
     //
   ]);
 }
