@@ -2,6 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:sagaklogic/Board.dart';
+import 'package:sagaklogic/samples.dart';
+
+import 'SolveHelper.dart';
 
 void main() => runApp(MyApp());
 
@@ -44,11 +47,7 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _SolvingState createState() {
-    var board = new Board(rows: 15, cols: 15);
-    board.initRandom(Random.secure());
-    print(board.configurationPrettyString());
-
-    return _SolvingState(solution: board);
+    return _SolvingState.fromQuiz(quiz: Samples.kakaodog);
   }
 }
 
@@ -63,18 +62,43 @@ class _SolvingState extends State<MyHomePage> {
     quiz.prettyPrint();
   }
 
-  void _incrementCounter() {
+  _SolvingState.fromQuiz({this.quiz}) {
+    solution = new Board(rows: quiz.rows.length, cols: quiz.cols.length);
+    current = new Board(rows: quiz.rows.length, cols: quiz.cols.length);
+    quiz.prettyPrint();
+  }
+
+  void _showSolution() {
+    SolveHelper helper = SolveHelper(
+        line: ConcreteLine.fromString("     O X O     "),
+        chunks: Chunks(counts: [3, 1, 5]));
+
     setState(() {
-      solution.initRandom(Random.secure());
-      print(solution.configurationPrettyString());
+      //solution.initRandom(Random.secure());
+      // print(solution.configurationPrettyString());
       current.clearBoard();
-      quiz = solution.createQuiz();
+//      current.configuration = solution.configuration;
+//      quiz = solution.createQuiz();
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
     });
+  }
+
+  void hintOnVertical(int col) {
+    var solvedLine =
+        SolveHelper(line: current.verticalView(col), chunks: quiz.cols[col])
+            .solvedLine;
+    current.updateVertical(col, solvedLine);
+  }
+
+  void hintOnHorizontal(int row) {
+    var solvedLine =
+        SolveHelper(line: current.horizontalView(row), chunks: quiz.rows[row])
+            .solvedLine;
+    current.updateHorizontal(row, solvedLine);
   }
 
   @override
@@ -86,36 +110,75 @@ class _SolvingState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     List<TableRow> tableRows = List(solution.rows + 1);
-    tableRows[0] = TableRow(
-        children: <Widget>[Text("")] +
-            quiz.cols
-                .map((c) => Text(
-                      c.counts.join("\n"),
-                      textAlign: TextAlign.center,
-                    ))
-                .toList(growable: false));
+
+    List<Widget> verticalHints = List(solution.cols);
+
+    for (int i = 0; i < solution.cols; i++) {
+      verticalHints[i] = InkWell(
+          onTap: () {
+            // vertical column hint 클릭시
+            print("vertical $i hint clicked");
+            setState(() {
+              hintOnVertical(i);
+            });
+          },
+          child: Text(
+            quiz.cols[i].counts.join("\n"),
+            textAlign: TextAlign.center,
+          ));
+    }
+
+    var autoButton = FlatButton(
+        onPressed: () {
+          print("Auto one round!");
+          setState(() {
+            for (int col = 0; col < solution.cols; col++) hintOnVertical(col);
+            for (int row = 0; row < solution.rows; row++) hintOnHorizontal(row);
+          });
+        },
+        child: Text("Auto"));
+
+    tableRows[0] = TableRow(children: <Widget>[autoButton] + verticalHints);
     for (int i = 0; i < solution.rows; i++) {
       var cells = new List<Widget>(solution.cols);
       for (var j = 0; j < solution.cols; j++) {
+        var backColor = (current.configuration[i][j] == CellState.Filled)
+            ? Colors.blue
+            : Colors.transparent;
+        var cellText = Text(Board.cellStateString(current.configuration[i][j]),
+            textAlign: TextAlign.center,
+            style: TextStyle(backgroundColor: backColor));
         cells[j] = InkWell(
             onTap: () {
               setState(() {
                 var state = current.configuration[i][j];
-                if (state == CellState.Filled) {
-                  current.configuration[i][j] = CellState.Empty;
-                } else {
+                if (state == CellState.Empty) {
                   current.configuration[i][j] = CellState.Filled;
+                } else if (state == CellState.Filled) {
+                  current.configuration[i][j] = CellState.Never;
+                } else {
+                  current.configuration[i][j] = CellState.Empty;
                 }
               });
             },
-            child: Text(Board.cellStateString(current.configuration[i][j]),
-                textAlign: TextAlign.center));
+            child: cellText);
       }
 
       var hint = quiz.rows[i].counts.join(" ");
 
       tableRows[i + 1] = TableRow(
-          children: <Widget>[Text(hint, textAlign: TextAlign.right)] + cells);
+          children: <Widget>[
+                InkWell(
+                    onTap: () {
+                      // horizontal row hint 클릭시
+                      print("horizontal $i clicked");
+                      setState(() {
+                        hintOnHorizontal(i);
+                      });
+                    },
+                    child: Text(hint, textAlign: TextAlign.right))
+              ] +
+              cells);
     }
 
     return Scaffold(
@@ -129,15 +192,10 @@ class _SolvingState extends State<MyHomePage> {
         // in the middle of the parent.
         child: Table(
             defaultVerticalAlignment: TableCellVerticalAlignment.bottom,
-            defaultColumnWidth: FixedColumnWidth(20),
+            defaultColumnWidth: FixedColumnWidth(10),
             columnWidths: {0: IntrinsicColumnWidth()},
             children: tableRows),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

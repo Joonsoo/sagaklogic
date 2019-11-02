@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:sagaklogic/SolveHelper.dart';
+
 enum CellState { Empty, Filled, Never }
 
 class Board {
@@ -21,6 +23,16 @@ class Board {
     for (int i = 1; i < rows; i++) {
       if (configuration[i].length != cols)
         throw new Exception("Non-square configuration");
+    }
+  }
+
+  Board.fromStrings(List<String> board) {
+    rows = board.length;
+    cols = board[0].length;
+    configuration = List<List<CellState>>(rows);
+    for (int i = 0; i < rows; i++) {
+      if (board[i].length != cols) throw Exception("Invalid board");
+      configuration[i] = ConcreteLine.fromString(board[i]).line;
     }
   }
 
@@ -124,6 +136,50 @@ class Board {
     }
     return rowStrings.join("\n");
   }
+
+  Line verticalView(int col) => VerticalView(board: this, col: col);
+
+  Line horizontalView(int row) => HorizontalView(board: this, row: row);
+
+  void updateVertical(int col, Line line) {
+    assert(line.length() == rows);
+    for (int i = 0; i < rows; i++) {
+      configuration[i][col] = line[i];
+    }
+  }
+
+  void updateHorizontal(int row, Line line) {
+    assert(line.length() == cols);
+    for (int i = 0; i < cols; i++) {
+      configuration[row][i] = line[i];
+    }
+  }
+}
+
+class VerticalView extends Line {
+  VerticalView({this.board, this.col});
+
+  Board board;
+  int col;
+
+  @override
+  CellState operator [](int index) => board.configuration[index][col];
+
+  @override
+  int length() => board.rows;
+}
+
+class HorizontalView extends Line {
+  HorizontalView({this.board, this.row});
+
+  Board board;
+  int row;
+
+  @override
+  CellState operator [](int index) => board.configuration[row][index];
+
+  @override
+  int length() => board.cols;
 }
 
 class Quiz {
