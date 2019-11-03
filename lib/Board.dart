@@ -235,7 +235,13 @@ class HorizontalView extends Line {
 }
 
 class Quiz {
-  Quiz({this.rows, this.cols});
+  Quiz({this.rows, this.cols}) {
+    int sum(List<int> list) => list.fold(0, (a, b) => a + b);
+    if (rows.fold(0, (a, b) => a + sum(b.counts)) !=
+        cols.fold(0, (a, b) => a + sum(b.counts))) {
+      throw Exception("Invalid quiz!");
+    }
+  }
 
   List<Chunks> rows, cols;
 

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:sagaklogic/Board.dart';
 import 'package:sagaklogic/samples.dart';
@@ -90,15 +88,15 @@ class _SolvingState extends State<MyHomePage> {
 
   void hintOnVertical(int col) {
     var solvedLine =
-        SolveHelper(line: current.verticalView(col), chunks: quiz.cols[col])
+        SolveStrategies(line: current.verticalView(col), chunks: quiz.cols[col])
             .solvedLine;
     current.updateVertical(col, solvedLine);
   }
 
   void hintOnHorizontal(int row) {
-    var solvedLine =
-        SolveHelper(line: current.horizontalView(row), chunks: quiz.rows[row])
-            .solvedLine;
+    var solvedLine = SolveStrategies(
+            line: current.horizontalView(row), chunks: quiz.rows[row])
+        .solvedLine;
     current.updateHorizontal(row, solvedLine);
   }
 
@@ -188,6 +186,14 @@ class _SolvingState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.developer_mode),
+//            onPressed: () {
+//              print(SolveStrategies(
+//                  line: ConcreteLine.fromString("...O..O..O...."),
+//                  chunks: Chunks(counts: [4, 1, 3])).solvedLine);
+//            },
+//          ),
           IconButton(
             icon: Icon(Icons.clear),
             onPressed: () {
