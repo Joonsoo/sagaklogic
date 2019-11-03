@@ -53,6 +53,7 @@ class _SolvingState extends State<MyHomePage> {
   Board current;
   Board solution;
   Quiz quiz;
+  int fontSize = 8;
 
   _SolvingState({this.solution}) {
     current = new Board(rows: solution.rows, cols: solution.cols);
@@ -122,7 +123,8 @@ class _SolvingState extends State<MyHomePage> {
             });
           },
           child: Text(quiz.cols[i].counts.join("\n"),
-              textAlign: TextAlign.center, style: TextStyle(fontSize: 8)));
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: fontSize.floorToDouble())));
     }
 
     var autoButton = FlatButton(
@@ -174,7 +176,7 @@ class _SolvingState extends State<MyHomePage> {
                       });
                     },
                     child: Text(hint,
-                        style: TextStyle(fontSize: 8),
+                        style: TextStyle(fontSize: fontSize.floorToDouble()),
                         textAlign: TextAlign.right))
               ] +
               cells);
@@ -194,6 +196,22 @@ class _SolvingState extends State<MyHomePage> {
 //                  chunks: Chunks(counts: [4, 1, 3])).solvedLine);
 //            },
 //          ),
+          IconButton(
+            icon: Icon(Icons.arrow_upward),
+            onPressed: () {
+              setState(() {
+                if (fontSize < 20) fontSize += 1;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_downward),
+            onPressed: () {
+              setState(() {
+                if (fontSize > 8) fontSize -= 1;
+              });
+            },
+          ),
           IconButton(
             icon: Icon(Icons.clear),
             onPressed: () {

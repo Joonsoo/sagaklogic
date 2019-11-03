@@ -1,17 +1,18 @@
 import 'package:sagaklogic/Board.dart';
 
 class Samples {
-  static Map<String, Quiz> get allQuizzes => {
-        "metamong": metamong.createQuiz(),
-        "octopus": octopus.createQuiz(),
-        "deer": deer,
-        "kakaodog": kakaodog,
-        "moyashimon": moyashimon,
-        "gagamel": gagamel,
-        "tazza": tazza,
-        "doll": doll,
-        "lion": lion,
-      };
+  static Map<String, Quiz> allQuizzes = {
+    "metamong": metamong.createQuiz(),
+    "octopus": octopus.createQuiz(),
+    "deer": deer,
+    "kakaodog": kakaodog,
+    "moyashimon": moyashimon,
+    "gagamel": gagamel,
+    "tazza": tazza,
+    "doll": doll,
+    "lion": lion,
+    "kiwoom": kiwoom,
+  };
 
   static Board metamong = Board.fromStrings([
     "...OOO....",
@@ -524,6 +525,58 @@ class Samples {
     Chunks(counts: [30]),
     Chunks(counts: [30]),
     Chunks(counts: [30]),
+    //
+  ]);
+
+  static Quiz kiwoom = new Quiz(rows: [
+    Chunks(counts: [20]),
+    Chunks(counts: [11, 1]),
+    Chunks(counts: [3, 1, 6, 1]),
+    Chunks(counts: [3, 5, 1, 3, 1]),
+    Chunks(counts: [3, 3, 3, 3, 2]),
+    //
+    Chunks(counts: [5, 3, 2, 2, 2]),
+    Chunks(counts: [5, 2, 2, 3, 3]),
+    Chunks(counts: [5, 2, 2, 2, 3]),
+    Chunks(counts: [4, 2, 2, 3, 4]),
+    Chunks(counts: [4, 3, 2, 4]),
+    //
+    Chunks(counts: [4, 2, 3, 5]),
+    Chunks(counts: [4, 2, 2, 2, 4]),
+    Chunks(counts: [3, 2, 3, 3, 4]),
+    Chunks(counts: [3, 3, 3, 2, 3]),
+    Chunks(counts: [3, 2, 4, 3, 3]),
+    //
+    Chunks(counts: [3, 2, 5, 2, 2]),
+    Chunks(counts: [2, 2, 6, 3, 2]),
+    Chunks(counts: [2, 3, 6, 2, 1]),
+    Chunks(counts: [2, 7, 3, 1]),
+    Chunks(counts: [14, 1]),
+    //
+  ], cols: [
+    Chunks(counts: [20]),
+    Chunks(counts: [20]),
+    Chunks(counts: [16, 1]),
+    Chunks(counts: [2, 7, 1, 1]),
+    Chunks(counts: [2, 1, 3, 5, 1]),
+    //
+    Chunks(counts: [2, 1, 9, 1]),
+    Chunks(counts: [2, 11, 1]),
+    Chunks(counts: [2, 7, 5]),
+    Chunks(counts: [2, 3, 9]),
+    Chunks(counts: [2, 2, 9]),
+    //
+    Chunks(counts: [9, 8]),
+    Chunks(counts: [1, 3, 1, 6]),
+    Chunks(counts: [1, 1, 1, 5, 4]),
+    Chunks(counts: [1, 1, 9, 2]),
+    Chunks(counts: [1, 7, 5]),
+    //
+    Chunks(counts: [1, 5, 1, 5]),
+    Chunks(counts: [1, 3, 5, 3]),
+    Chunks(counts: [1, 1, 9, 1]),
+    Chunks(counts: [1, 13]),
+    Chunks(counts: [20]),
     //
   ]);
 }
